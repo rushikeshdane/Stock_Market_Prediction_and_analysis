@@ -1,0 +1,62 @@
+div.css-12w0qpk.e1tzin5v2 {
+    background-color: rgba(220, 220, 220, 0.60);
+    color:blue;
+    padding: 3% 3% 3% 3%;
+    border-radius: 15px;
+    width: 10px;
+    
+    margin-bottom: 50px;
+    text-align: right;
+}
+div.css-j5r0tf.e1tzin5v2{
+    background-color: rgba(220, 220, 220, 0.60);
+    color:blue;
+    padding: 3% 3% 3% 3%;
+    border-radius: 15px;
+    width: 10px;
+    
+    margin-bottom: 50px;
+    text-align: right;
+
+}
+[data-testid="stMarkdownContainer"]{
+    font-size: 50px;
+}
+/*[data-testid="stMetricValue"] {
+    font-size: 100px;
+}
+
+.css-cap72c e16fv1kl2 {
+    color: pink;
+}
+div.css-184tjsw.e16nr0p34{
+    font-size: 100px;
+}
+
+div.column{
+    color: blue;
+}
+
+/* Centering text in each gray box */
+div.css-1ht1j8u.e16fv1kl0 {
+    font-size: small;
+    color: #000;
+
+  }
+
+div.css-1qvnf0x{
+    
+    font-size: small;
+    
+}
+
+div.css-50ug3q e16fv1kl3 {
+    text-align: center;
+  }
+
+/*div.css-12w0qpk.e1tzin5v2 {
+    background-color: rgba(220, 220, 220, 0.60);
+    padding: 3% 3% 3% 3%;
+    border-radius: 5px;
+} */
+  
