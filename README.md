@@ -1,4 +1,4 @@
 # Stock_Market_Prediction_and_analysis
 
 
-![1](https://github.com/rushikeshdane/Stock_Market_Prediction_and_analysis/issues/1#issue-1820991296)
+![Screenshot (96)](https://github.com/rushikeshdane/Stock_Market_Prediction_and_analysis/assets/78649021/05893cec-735e-4916-9753-570cc8accdd5)
