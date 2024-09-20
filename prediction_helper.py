@@ -52,7 +52,8 @@ def get_screen_data(stockname):
                        interval='1d')
 
     # Filter the data to only show data from the latest date
-    latest_date = data.index.date[-1]
+    latest_date =  pd.to_datetime(data.index[-1]).date()
+
     df_latest = data[data.index.date == latest_date]
     return df_latest
 
