@@ -1,4 +1,7 @@
 altair
+nsepy
+streamlit_lottie
+stocknews 
 streamlit
 ansi2html
 appdirs
