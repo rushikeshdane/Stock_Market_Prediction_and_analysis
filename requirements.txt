@@ -1,5 +1,6 @@
 altair
 prophet
+numpy <= 2.0
 nsepy
 yfinance
 streamlit_lottie
