@@ -1,7 +1,8 @@
 [theme]
-primaryColor = "#923b9c"
-backgroundColor = "#503069"
-secondaryBackgroundColor = "#240a31"
-textColor = "#f9f4f9"
+primaryColor = "#00E676"             # A vibrant green representing positive growth and money
+backgroundColor = "#0D1B2A"          # Dark navy blue for a professional and tech-driven look
+secondaryBackgroundColor = "#1B263B" # Slightly lighter shade for containers or sidebar elements
+textColor = "#F5F5F5"                # Light off-white text for high contrast on a dark background
+font = "sans serif"                  # Clean and modern font for readability
 
 
