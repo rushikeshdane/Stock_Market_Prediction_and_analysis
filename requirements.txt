@@ -1,4 +1,5 @@
 altair
+prophet
 nsepy
 yfinance
 streamlit_lottie
