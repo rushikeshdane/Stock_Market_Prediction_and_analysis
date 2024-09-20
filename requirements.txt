@@ -1,4 +1,5 @@
 altair
+streamlit
 ansi2html
 appdirs
 asttokens
