@@ -1,5 +1,6 @@
 altair
 nsepy
+yfinance
 streamlit_lottie
 stocknews 
 streamlit
