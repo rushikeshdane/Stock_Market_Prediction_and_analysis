@@ -13,7 +13,7 @@ from prophet.plot import plot_plotly
 import matplotlib.pyplot as plt
 
 # nse = Nse()
-nse50 = pd.read_csv('https://archives.nseindia.com/content/indices/ind_nifty50list.csv')
+nse50 = pd.read_csv('ind_nifty50list.csv')
 symbols = nse50['Symbol'].to_list()
 
 
