@@ -11,7 +11,7 @@ from nsepy import get_history
 from prediction_helper import get_sector, get_stock_data, get_screen_data
 from PIL import Image
 
-nse51 = pd.read_csv('https://archives.nseindia.com/content/indices/ind_nifty50list.csv')
+nse51 = pd.read_csv('ind_nifty50list.csv')
 symbols = nse51['Symbol'].to_list()
 sym = nse51['Symbol'].to_frame()
 
