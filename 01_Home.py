@@ -1,4 +1,4 @@
-# from app import  get_data, load_data , sma_screener
+"""# from app import  get_data, load_data , sma_screener
 import streamlit as st
 from streamlit_lottie import st_lottie
 from streamlit_lottie import st_lottie_spinner
@@ -134,3 +134,4 @@ if filters == 'Most Active':
         file_name='Most_active.csv',
         mime='text/csv',
     )
+"""
