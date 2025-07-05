@@ -1,3 +1,180 @@
+# --- 01_Home.py ---
+
+from prediction_helper import get_stock_data, info, trend, prophet_preprocessing, forcast, candle, predictions, next_10_forcast
+import streamlit as st
+from PIL import Image
+from prophet import Prophet
+import matplotlib.pyplot as plt
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import pandas_ta as ta
+import plotly.express as px
+import plotly.graph_objects as go
+import datetime as dt
+from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
+from stocknews import StockNews
+
+st.set_page_config(layout="wide", page_title="MET Project")
+
+with open('style.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+stocks = ['ADANIENT', 'ADANIPORTS', 'APOLLOHOSP', 'ASIANPAINT', 'AXISBANK', 'BAJAJ-AUTO', 'BAJFINANCE', 'BAJAJFINSV',
+          'BPCL', 'BHARTIARTL', 'BRITANNIA', 'CIPLA', 'COALINDIA', 'DIVISLAB', 'DRREDDY', 'EICHERMOT', 'GRASIM',
+          'HCLTECH', 'HDFCBANK', 'HDFCLIFE', 'HEROMOTOCO', 'HINDALCO', 'HINDUNILVR', 'HDFC', 'ICICIBANK', 'ITC',
+          'INDUSINDBK', 'INFY', 'JSWSTEEL', 'KOTAKBANK', 'LT', 'M&M', 'MARUTI', 'NTPC', 'NESTLEIND', 'ONGC',
+          'POWERGRID', 'RELIANCE', 'SBILIFE', 'SBIN', 'SUNPHARMA', 'TCS', 'TATACONSUM', 'TATAMOTORS', 'TATASTEEL',
+          'TECHM', 'TITAN', 'UPL', 'ULTRACEMCO', 'WIPRO']
+
+st.title('Stock Price Predictor')
+
+image = Image.open('logo.jpg')
+st.sidebar.image(image, width=300)
+
+input_stock = st.sidebar.selectbox('Select your stock ', options=[x + '.NS' for x in stocks])
+ticker = str(input_stock)
+data_load_state = st.sidebar.text('Loading Data...')
+stock1 = get_stock_data(input_stock)
+data_load_state.text('Data Loaded Successfully')
+
+time = st.sidebar.number_input('Select number of days for forecasting', value=365)
+time = int(time)
+
+info_result = info(stock1)
+if info_result[0] is None:
+    st.error("Stock data not available or incomplete for selected stock.")
+    st.stop()
+
+open_, close, high, low, volume = info_result
+
+b1, b2, b3, b4, b5 = st.columns(5)
+b1.metric("Open", open_)
+b2.metric("Close", close)
+b3.metric("High", high)
+b4.metric("Low", low)
+b5.metric('Volume', volume)
+
+st.write(input_stock[-3])
+trend(stock1, input_stock)
+
+pricing_data, tech_indicator = st.tabs(["Pricing Data", "Technical Analysis"])
+
+with pricing_data:
+    st.subheader('Price Movements')
+    data2 = stock1.tail(30).iloc[::-1]
+    data2['%change'] = stock1['Adj Close'] / stock1['Adj Close'].shift(1) - 1
+    data2.dropna(inplace=True)
+    st.write(data2)
+    annual_return = data2['%change'].mean() * 252 * 100
+    st.write('Annual Return is', str(annual_return), '%')
+    stedev = np.std(data2['%change']) * np.sqrt(252)
+    st.write('Standard Deviation is', str(stedev * 100), '%')
+
+with tech_indicator:
+    options = ['macd', 'rsi', 'bollinger_bands', 'momentum']
+    selected_option = st.selectbox('Select an indicator:', options)
+    if selected_option == 'macd':
+        def macd(data):
+            return ta.macd(data['Close'])
+        macd_indicator = macd(stock1.tail(365))
+        st.line_chart(macd_indicator)
+
+    if selected_option == 'rsi':
+        def rsi(data, period=14):
+            return ta.rsi(data['Close'], length=period)
+        rsi_indicator = rsi(stock1.tail(365))
+        st.line_chart(rsi_indicator)
+
+    if selected_option == 'bollinger_bands':
+        def bollinger_bands(data, period=20):
+            return ta.bbands(data['Close'], length=period)
+        bb_indicator = bollinger_bands(stock1.tail(365))
+        st.line_chart(bb_indicator)
+
+    if selected_option == 'momentum':
+        def momentum(data, period=10):
+            return data['Close'].diff(period)
+        mom_10 = momentum(stock1.tail(365), 10)
+        st.line_chart(mom_10)
+
+candle(stock1.tail(90), input_stock)
+
+forcasted_data = prophet_preprocessing(stock1)
+pred_val = predictions(forcasted_data, time=time)
+pred = pred_val['yhat'].to_list()
+
+train = forcasted_data.iloc[:-365, :]
+test = forcasted_data.iloc[-365:, :]
+
+model = Prophet()
+model.fit(train)
+forecast = model.predict(test)
+mae = mean_absolute_error(test['y'], forecast['yhat'])
+mape = mean_absolute_percentage_error(test['y'], forecast['yhat'])
+accuracy = 100 - (mae / test['y'].mean()) * 100
+
+data_variable = st.sidebar.checkbox('View Forecasting')
+if data_variable:
+    forcast(forcasted_data, time=time)
+    st.write(f"<span style='font-size:20px'><b>Predicted value after {time} days is {pred[-1]}</b></span>", unsafe_allow_html=True)
+    st.write("<span style='font-size:20px'><b>Forecast for next 10 days - </b></span>", unsafe_allow_html=True)
+    st.write(next_10_forcast(pred_val))
+    st.write('Mean Absolute percentage Error:', str(mape))
+    st.write('Accuracy:', str(accuracy), '%')
+
+sma_20 = stock1['Close'].rolling(window=20).mean()
+sma_50 = stock1['Close'].rolling(window=50).mean()
+ema_12 = stock1['Close'].ewm(span=12, adjust=False).mean()
+ema_26 = stock1['Close'].ewm(span=26, adjust=False).mean()
+
+if sma_20[-1] > sma_50[-1] and ema_12[-1] > ema_26[-1]:
+    signal = "Strong buy"
+    color = "green"
+elif sma_20[-1] > sma_50[-1] or ema_12[-1] > ema_26[-1]:
+    signal = "buy"
+    color = "lightgreen"
+elif sma_20[-1] < sma_50[-1] and ema_12[-1] < ema_26[-1]:
+    signal = "Strong sell"
+    color = "red"
+elif sma_20[-1] < sma_50[-1] or ema_12[-1] < ema_26[-1]:
+    signal = "sell"
+    color = "pink"
+else:
+    signal = "neutral"
+    color = "gray"
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=stock1.index, y=stock1['Close'], name="Stock Price", mode="lines"))
+
+fig.add_trace(go.Scatter(x=[stock1.index[-1]], y=[stock1['Close'][-1]], mode="markers",
+                         marker=dict(color=color, size=15), name=f"{signal.capitalize()} Signal"))
+
+fig.update_layout(title=f"{input_stock} Stock Price", xaxis_title="Date", yaxis_title="Price ($)")
+
+sig = st.sidebar.checkbox("Show Buy/Sell Signal")
+if sig:
+    st.subheader("Signal for Buy/Sell Stock")
+    st.plotly_chart(fig)
+    fig_bar = go.Figure()
+    fig_bar.add_trace(go.Bar(x=[signal], y=[1], marker=dict(color=color)))
+    fig_bar.update_layout(title=f"{ticker} Stock Signal", xaxis_title="", yaxis_title="", height=90,
+                          margin=dict(l=0, r=0, t=50, b=0))
+    st.plotly_chart(fig_bar)
+    st.subheader(f"Signal: {signal}")
+
+news = st.button('news')
+if news:
+    st.subheader(f'Top 5 News related to {ticker} stock ')
+    sn = StockNews(input_stock[:-5], save_news=False)
+    df_news = sn.read_rss()
+    for i in range(5):
+        st.subheader(f'News {i + 1}')
+        st.write(df_news['published'][i])
+        st.write(df_news['title'][i])
+        st.write(df_news['summary'][i])
+        st.write(f'Title Sentiment {df_news["sentiment_title"][i]}')
+        st.write(f'News Sentiment {df_news["sentiment_summary"][i]}')
 # from app import  get_data, load_data , sma_screener
 from prediction_helper import get_stock_data, info, trend, prophet_preprocessing, forcast, candle, predictions, \
     next_10_forcast
