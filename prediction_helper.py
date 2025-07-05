@@ -59,30 +59,14 @@ def get_screen_data(stockname):
 
 
 def info(stock_data):
-    if stock_data is None or stock_data.empty:
-        st.warning("No stock data available.")
-        return None, None, None, None, None
-
     last_day = stock_data.tail(1)
-
-    required_columns = ['Open', 'Close', 'High', 'Low', 'Volume']
-    for col in required_columns:
-        if col not in last_day.columns:
-            st.error(f"Missing '{col}' column in data.")
-            return None, None, None, None, None
-
-        if pd.isna(last_day[col].values[0]):
-            st.error(f"Value for '{col}' is NaN.")
-            return None, None, None, None, None
-
-    open_ = round(last_day['Open'].values[0], 2)
+    open = round(last_day['Open'].values[0], 2)
     close = round(last_day['Close'].values[0], 2)
     high = round(last_day['High'].values[0], 2)
     low = round(last_day['Low'].values[0], 2)
     volume = round(last_day['Volume'].values[0], 2)
 
-    return open_, close, high, low, volume
-
+    return open, close, high, low, volume
 
 
 def trend(stock_name, title):
